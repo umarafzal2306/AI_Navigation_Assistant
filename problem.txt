@@ -1,0 +1,22 @@
+
+
+1. The Computing Bottleneck (Too Heavy for a Pi)
+The Problem: Your current code runs YOLOv8x (Extra Large), MiDaS Small, and LM Studio (Qwen-2.5-3B).
+Why a Pi will struggle: A standard Raspberry Pi (even the Pi 5) does not have a dedicated GPU. It cannot run a 3B LLM, YOLOv8x, and MiDaS at the same time. The system will drop to 0.1 Frames Per Second (one frame every 10 seconds), which is too slow to navigate.
+The Fix:
+Change the YOLO model to YOLOv8n (Nano) or convert it to ONNX format to run fast on CPU.
+Instead of running the LLM locally on the Raspberry Pi, you should let the Pi run the vision code, but send a tiny text message to a cloud API or a home server running LM Studio for the scene description. Alternatively, skip the LLM on-device and use a highly optimized rule-based decision engine for safety, using the LLM only when requested.
+
+
+
+2. Power and Battery Life
+The Problem: Running a Raspberry Pi 5 under full load (CPU at 100% processing video frames) uses a lot of power (around 15-20 Watts).
+Why it's lacking: A standard phone power bank will either overheat, shut down, or drain in less than an hour.
+The Fix: You need a high-quality Power Delivery (PD) power bank (at least 20W+ output) and active cooling (a fan/heatsink) on the Raspberry Pi so it doesn't throttle and slow down.
+
+
+
+3. Real-World Camera Stability
+The Problem: When walking, a person's head moves up, down, and shakes.
+Why it's lacking: Standard camera frames will be blurry. YOLO and MiDaS struggle with motion blur, leading to false alerts.
+The Fix: You need a camera sensor with Global Shutter or hardware image stabilization (EIS) so the video frames stay sharp even while walking.

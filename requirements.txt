@@ -1,0 +1,36 @@
+# ============================================================
+# AI Navigation Assistant — Python Dependencies
+# ============================================================
+
+# Core AI / Vision
+ultralytics>=8.0.0           # YOLOv8 + ByteTrack
+opencv-python>=4.8.0         # Webcam capture + frame processing
+torch>=2.0.0                 # PyTorch — MiDaS backbone
+torchvision>=0.15.0
+timm>=0.9.0                  # MiDaS model backbone (ViT)
+
+# Depth Estimation
+# MiDaS loaded via torch.hub — no extra pip install needed
+
+# Groq API
+groq>=0.9.0
+
+# Text-to-Speech
+pyttsx3>=2.90                # Offline English TTS
+gTTS>=2.3.2                  # Hindi TTS (requires internet)
+pygame-ce>=2.5.0             # Audio playback for gTTS output (community edition)
+
+# Utilities
+numpy>=1.24.0
+Pillow>=10.0.0
+pyyaml>=6.0                  # Config file parsing
+python-dotenv>=1.0.0         # .env for API keys
+requests>=2.31.0
+
+# Optional: better voice quality
+# edge-tts>=6.1.9            # Microsoft Edge TTS (uncomment if desired)
+
+# Web Dashboard
+fastapi>=0.115.0              # WebSocket server for dashboard
+uvicorn[standard]>=0.30.0     # ASGI server
+websockets>=12.0              # WebSocket protocol

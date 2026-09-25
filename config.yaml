@@ -1,0 +1,127 @@
+# ============================================================
+# AI Navigation Assistant — Configuration
+# ============================================================
+
+# --- Performance ---
+performance:
+  process_every_n_frames: 3     # Only run AI pipeline every Nth frame (1 = every frame)
+
+# --- Camera ---
+camera:
+  device_index: "http://192.168.1.6:8080/video"          # Webcam index or IP stream URL
+  frame_width: 320
+  frame_height: 240
+  fps: 30
+
+# --- Object Detection (YOLOv8) ---
+detection:
+  model_path: "yolov8x.onnx"  # ONNX format for faster inference (exported from yolov8x.pt)
+  confidence_threshold: 0.80
+  min_bbox_area_ratio: 0.01   # Minimum bounding box area as fraction of frame (1%)
+  target_classes:             # Navigation-critical COCO classes only (trimmed for speed)
+    - person
+    - chair
+    - dining table
+    - car
+    - bicycle
+    - bench
+    - dog
+    - cat
+    - bus
+    - truck
+    - motorcycle
+    - fire hydrant
+    - stop sign
+    - couch
+    - potted plant
+    # --- Personal items & everyday objects ---
+    - bottle
+    - cell phone
+    - cup
+    - backpack
+    - handbag
+    - suitcase
+    - laptop
+    - umbrella
+    - book
+    - tv
+    - remote
+
+# --- Depth Estimation (MiDaS) ---
+depth:
+  model_type: "MiDaS_small"   # Options: MiDaS_small, DPT_Hybrid, DPT_Large
+  temporal_smoothing_frames: 3  # Running average window for depth stability
+  calibration:
+    scale: 2.0                    # distance_m = scale / (depth_value + offset)
+    offset: 0.2                   # depth=1.0→1.7m, depth=0.7→2.2m, depth=0.5→2.9m, depth=0.3→4.0m, depth=0.1→6.7m(clamped 6m)
+    min_distance: 0.3           # Clamp minimum (meters)
+    max_distance: 6.0           # Clamp maximum (meters)
+
+# --- Object Tracking (ByteTrack) ---
+tracking:
+  alert_cooldown_seconds: 7.0   # Same track ID not re-announced within this window
+  re_announce_zone_change: false
+  re_announce_distance_change_threshold: 0.50  # 50% distance change triggers re-announce
+  min_tracked_frames: 5         # Object must be tracked this many frames before announcement
+  max_lost_frames: 150         # Remove track after this many lost frames (~5s at 30fps)
+
+# --- Direction Estimation ---
+direction:
+  left_boundary: 0.33           # 0–33% = LEFT
+  right_boundary: 0.66          # 66–100% = RIGHT
+                                 # 33–66% = CENTER
+
+# --- Decision Engine ---
+decision:
+  thresholds:
+    urgent: 2.0                 # < 2.0m → URGENT (very close)
+    warning: 4.0                # 2.0–4.0m → WARNING (close)
+    info: 6.0                   # 4.0–6.0m → INFO (nearby)
+                                 # > 6.0m → SILENT
+  max_simultaneous_alerts: 2
+  consecutive_frames_required: 3  # Multi-frame verification
+  distance_variance_threshold: 0.20  # ≤20% variance for distance stability
+  dynamic_obstacle_labels:       # These get +0.5 priority boost
+    - person
+    - car
+    - bicycle
+    - dog
+    - bus
+    - truck
+    - motorcycle
+
+# --- Voice / TTS ---
+voice:
+  default_language: "en"         # "en" or "hi"
+  pyttsx3_rate: 175              # Words per minute for English TTS
+  pyttsx3_volume: 1.0            # 0.0 to 1.0
+  gtts_lang: "hi"                # gTTS language code for Hindi
+  audio_temp_dir: "temp_audio"   # Temporary dir for gTTS mp3 files
+  queue_max_size: 10             # Max queued messages
+
+# --- LM Studio (Local LLM Brain) ---
+lm_studio:
+  base_url: "http://127.0.0.1:1234/v1"          # LM Studio local server URL
+  model: "qwen2.5-coder-3b-instruct-128k"        # Model loaded in LM Studio
+  max_tokens: 80                                 # Keep short for fast response
+  temperature: 0.2                               # Low = more deterministic
+  timeout_seconds: 8                             # Max wait per request
+  auto_trigger_interval_seconds: 5              # Auto scene description every N seconds
+  use_structured_output: true                    # Force JSON schema output from LM Studio
+  enabled: true                                  # Set to false to disable LLM brain
+
+# --- Display ---
+display:
+  show_window: true              # Show annotated video window (for sighted debug)
+  window_name: "AI Navigation Assistant"
+  annotation_font_scale: 0.5
+  colors:
+    urgent: [0, 0, 255]          # Red (BGR)
+    warning: [0, 165, 255]       # Orange (BGR)
+    info: [0, 255, 0]            # Green (BGR)
+
+# --- Logging ---
+logging:
+  level: "INFO"                  # DEBUG, INFO, WARNING, ERROR
+  log_to_file: false
+  log_file: "nav_assistant.log"
